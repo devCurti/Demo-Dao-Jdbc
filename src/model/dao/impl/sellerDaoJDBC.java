@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +24,34 @@ public class sellerDaoJDBC implements sellerDao {
 	
 	@Override
 	public void insert(seller obj) {
-		// TODO Auto-generated method stub
+		PreparedStatement st = null;
+		try {
+			st = conn.prepareStatement("INSERT INTO seller "
+					+ "(Name,Email,BirthDate,BaseSalary,DepartmentId) VALUES "
+					+ "(?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+			
+			st.setString(1, obj.getName());
+			st.setString(2, obj.getEmail());
+			st.setDate(3, new java.sql.Date(obj.getBirthDate().getTime()));
+			st.setDouble(4, obj.getBaseSalary());
+			st.setInt(5, obj.getDepartment().getId());
+			
+			int rowsAffected = st.executeUpdate();
+			if(rowsAffected > 0) {
+				ResultSet rs = st.getGeneratedKeys();
+				if(rs.next()) {
+					int id = rs.getInt(1);
+					obj.setId(id);
+				}
+			}else {
+				throw new DbException("Unexpected error: No lines affected!");
+			}
+		}catch(SQLException e) {
+			throw new DbException(e.getMessage());
+		}finally {
+			DB.closeStatement(st);
+			DB.closeResultSet(null);
+		}
 		
 	}
 
@@ -112,14 +140,37 @@ public class sellerDaoJDBC implements sellerDao {
 	private department instantiateDepartment(ResultSet rs) throws SQLException {
 		department dep = new department();
 		dep.setId(rs.getInt("DepartmentId"));
-		dep.setName(rs.getString("Name"));
+		dep.setName(rs.getString("department.Name"));
 		return dep;
 	}
 
 	@Override
 	public List<seller> findAll() {
-		// TODO Auto-generated method stub
-		return null;
+		PreparedStatement st = null;
+		ResultSet rs = null;
+		List<seller> sellerList = new ArrayList<>();
+		try {
+			st = conn.prepareStatement("SELECT seller.*, department.Name"
+					+ " FROM seller INNER JOIN department"
+					+ " ON seller.DepartmentId = department.Id"
+					+ " ORDER BY seller.Name");
+			rs = st.executeQuery();
+			
+			if(rs.next()) {
+				do {
+					department depa = instantiateDepartment(rs);
+					seller obj = instatianteSeller(rs,depa);
+					sellerList.add(obj);
+					} while(rs.next());
+				return sellerList;	
+			}
+			return null;
+		}catch(SQLException e) {
+			throw new DbException(e.getMessage());
+		}finally {
+			DB.closeStatement(st);
+			DB.closeResultSet(rs);
+		}
 	}
 
 }

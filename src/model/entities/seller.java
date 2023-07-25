@@ -18,9 +18,8 @@ public class seller implements Serializable {
 		
 	}
 
-	public seller(int id, String name, String email, Date birthDate, double baseSalary,
+	public seller(String name, String email, Date birthDate, double baseSalary,
 			model.entities.department department) {
-		this.id = id;
 		this.name = name;
 		this.email = email;
 		this.birthDate = birthDate;
