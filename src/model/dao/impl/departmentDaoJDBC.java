@@ -8,6 +8,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+
 import db.DB;
 import db.DbException;
 import model.dao.departmentDao;
@@ -50,14 +51,48 @@ public class departmentDaoJDBC implements departmentDao {
 
 	@Override
 	public void update(department obj) {
-		// TODO Auto-generated method stub
+		PreparedStatement st = null;
+		
+		try {
+			st = conn.prepareStatement("UPDATE department SET Name = ? WHERE Id = ?");
+			
+			st.setString(1, obj.getName());
+			st.setInt(2, obj.getId());
+			int rowsAffected = st.executeUpdate();
+			if(rowsAffected > 0) {
+				System.out.println("Update sucessfully done!");
+			}else {
+				throw new DbException("No rows affected!");
+			}
+		}catch(SQLException e) {
+			throw new DbException(e.getMessage());
+		}finally {
+			DB.closeStatement(st);
+		}
 		
 	}
 
 	@Override
 	public void deleteById(Integer id) {
-		// TODO Auto-generated method stub
+		PreparedStatement st = null;
 		
+		try {
+			st = conn.prepareStatement("DELETE FROM department WHERE department.Id = ?");
+			st.setInt(1, id);
+			
+			int rowsAffected = st.executeUpdate();
+			
+			if(rowsAffected > 0) {
+				System.out.println("Department deleted!");
+			}else {
+				throw new DbException("No department found!");
+			}
+			
+		}catch(SQLException e) {
+			throw new DbException(e.getMessage());
+		}finally {
+			DB.closeStatement(st);
+		}
 	}
 
 	@Override

@@ -25,11 +25,23 @@ public class Program2 {
 		System.out.println("New department inserted!");
 		
 		
-		System.out.println("-- TEST 2: Find department by id --");
+		System.out.println("-- TEST 3: Find department by id --");
 		System.out.println("Type a department id: ");
 		int depId = sc.nextInt();
 		depObj = depDao.findById(depId);
 		System.out.println(depObj);
+		
+		System.out.println("-- TEST 4: Delete department by id --");
+		System.out.println("Type a department id: ");
+		depId = sc.nextInt();
+		depDao.deleteById(depId);
+		
+		System.out.println("-- TEST 5: Update department --");
+		depObj.setName("Building");
+		depDao.update(depObj);
+		
+		
+		sc.close();
 
 	}
 
