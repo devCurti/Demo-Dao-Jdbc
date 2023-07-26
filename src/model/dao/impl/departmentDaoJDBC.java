@@ -62,8 +62,29 @@ public class departmentDaoJDBC implements departmentDao {
 
 	@Override
 	public department findById(Integer id) {
-		// TODO Auto-generated method stub
-		return null;
+		PreparedStatement st = null;
+		ResultSet rs = null;
+		try {
+			st = conn.prepareStatement("SELECT department.* FROM department "
+					+ "WHERE department.Id = ?");
+			
+			st.setInt(1, id);
+			rs = st.executeQuery();
+			
+			if(rs.next()) {
+				department dep = instatianteDepartment(rs);
+				return dep;
+			}else {
+				throw new DbException("Department not found!");
+			}
+			
+		}catch(SQLException e) {
+			throw new DbException(e.getMessage());
+		}finally {
+			DB.closeStatement(st);
+			DB.closeResultSet(rs);
+		}
+	
 	}
 
 	@Override
@@ -77,7 +98,7 @@ public class departmentDaoJDBC implements departmentDao {
 			rs = st.executeQuery();
 			if(rs.next()) {
 				do {
-					department dep = instatianteDeparment(rs);
+					department dep = instatianteDepartment(rs);
 					departmentList.add(dep);
 				}while(rs.next());
 			}else {
@@ -94,7 +115,7 @@ public class departmentDaoJDBC implements departmentDao {
 		
 	}
 
-	private department instatianteDeparment(ResultSet rs) throws SQLException {
+	private department instatianteDepartment(ResultSet rs) throws SQLException {
 		department dep = new department();
 		dep.setId(rs.getInt("Id"));
 		dep.setName(rs.getString("Name"));
